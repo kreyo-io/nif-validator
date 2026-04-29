@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <PackageId>Kreyo.NifValidator</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Kreyo</Authors>
+    <Company>Kreyo</Company>
+    <Description>Reference implementation for validating Spanish tax IDs (DNI, NIE, CIF). Pure functions, no dependencies, multi-target net8.0 + netstandard2.0.</Description>
+    <PackageTags>nif;cif;nie;dni;spain;tax;validation;identifier;spanish</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kreyo-io/nif-validator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kreyo-io/nif-validator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+
+</Project>

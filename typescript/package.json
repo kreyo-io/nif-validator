@@ -1,0 +1,61 @@
+{
+  "name": "@kreyo/nif-validator",
+  "version": "0.1.0",
+  "description": "Reference implementation for validating Spanish tax IDs (DNI, NIE, CIF). Pure functions, no dependencies, fully typed.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "nif",
+    "cif",
+    "nie",
+    "dni",
+    "spain",
+    "spanish",
+    "tax",
+    "validation",
+    "identifier"
+  ],
+  "author": "Kreyo",
+  "license": "MIT",
+  "homepage": "https://github.com/kreyo-io/nif-validator",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kreyo-io/nif-validator.git",
+    "directory": "typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/kreyo-io/nif-validator/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
