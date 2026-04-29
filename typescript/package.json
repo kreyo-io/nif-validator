@@ -19,6 +19,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "prebuild": "node -e \"require('fs').copyFileSync('../README.md','./README.md');require('fs').copyFileSync('../LICENSE','./LICENSE')\"",
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "test": "vitest run",
     "test:watch": "vitest",

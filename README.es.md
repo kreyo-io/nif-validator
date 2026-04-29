@@ -34,7 +34,7 @@ npm install @kreyo/nif-validator
 ### Python (3.10+)
 
 ```bash
-pip install nif-validator
+pip install kreyo-nif-validator
 ```
 
 ## Uso

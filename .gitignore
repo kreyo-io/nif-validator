@@ -32,5 +32,11 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Build-time copies (generated from root, not source of truth)
+typescript/README.md
+typescript/LICENSE
+python/README.md
+python/LICENSE
+
 # Tools
 .vexp/

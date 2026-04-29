@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git branch *)",
+      "Bash(pip install *)",
+      "Bash(pytest -v)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm publish *)",
+      "Bash(rm -rf dist/)",
+      "Bash(python -m build)",
+      "Bash(tar -tzf dist/*.tar.gz)",
+      "Bash(python -c \"import zipfile; [print\\(n\\) for n in zipfile.ZipFile\\('dist/kreyo_nif_validator-0.1.0-py3-none-any.whl'\\).namelist\\(\\) if 'README' in n or 'LICENSE' in n or 'METADATA' in n]\")",
+      "Bash(dotnet pack *)",
+      "Bash(python -c \"import zipfile; [print\\(n\\) for n in zipfile.ZipFile\\('bin/Release/Kreyo.NifValidator.0.1.0.nupkg'\\).namelist\\(\\) if any\\(x in n for x in ['README','LICENSE','readme','license']\\)]\")"
+    ],
+    "additionalDirectories": [
+      "d:\\Repos\\nif-validator\\{dotnet"
+    ]
+  }
+}

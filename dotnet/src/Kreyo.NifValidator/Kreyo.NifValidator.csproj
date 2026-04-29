@@ -13,7 +13,7 @@
     <Company>Kreyo</Company>
     <Description>Reference implementation for validating Spanish tax IDs (DNI, NIE, CIF). Pure functions, no dependencies, multi-target net8.0 + netstandard2.0.</Description>
     <PackageTags>nif;cif;nie;dni;spain;tax;validation;identifier;spanish</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/kreyo-io/nif-validator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/kreyo-io/nif-validator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -21,7 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="\" />
+    <None Include="../../../README.md" Pack="true" PackagePath="\" />
+    <None Include="../../../LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
