@@ -6,6 +6,9 @@ Zero dependencies. Pure functions. Verified against real public CIFs of Spanish 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/kreyo-io/nif-validator/workflows/CI/badge.svg)](https://github.com/kreyo-io/nif-validator/actions)
+[![NuGet](https://img.shields.io/nuget/v/Kreyo.NifValidator?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Kreyo.NifValidator)
+[![npm](https://img.shields.io/npm/v/@kreyo/nif-validator?logo=npm&label=npm)](https://www.npmjs.com/package/@kreyo/nif-validator)
+[![PyPI](https://img.shields.io/pypi/v/kreyo-nif-validator?logo=pypi&label=PyPI)](https://pypi.org/project/kreyo-nif-validator/)
 
 > 🇪🇸 **Para developers en español**: esta librería valida números de identificación fiscal españoles (DNI, NIE, CIF) en .NET, JavaScript/TypeScript y Python. Implementación de referencia, sin dependencias, con tests sobre CIFs reales de empresas españolas. **[Documentación completa en español →](README.es.md)**
 
