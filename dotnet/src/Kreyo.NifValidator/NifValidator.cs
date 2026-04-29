@@ -119,7 +119,7 @@ public static class NifValidator
 
     private static bool ValidateDni(string clean)
     {
-        if (!int.TryParse(clean.AsSpan(0, 8), out var number)) return false;
+        if (!int.TryParse(clean.Substring(0, 8), out var number)) return false;
         var expected = DniLetters[number % 23];
         return clean[8] == expected;
     }
@@ -143,7 +143,7 @@ public static class NifValidator
         var first = clean[0];
 
         // Digits 1-7 (positions 1..7 in the body)
-        if (!int.TryParse(clean.AsSpan(1, 7), out _)) return false;
+        if (!int.TryParse(clean.Substring(1, 7), out _)) return false;
 
         var sumOdd = 0;   // positions 1, 3, 5, 7 (1-based) doubled and digit-summed
         var sumEven = 0;  // positions 2, 4, 6 (1-based) directly
