@@ -164,6 +164,11 @@ If you're building software that needs Spanish tax compliance, you might also li
 - **[Kreyo Extract](https://kreyo.io/extract)** — extract structured data from received invoices with AI
 - **[Kreyo PDF](https://kreyo.io/pdf)** — generate invoices and documents as PDFs
 
+And the sibling open-source repos in the Kreyo toolkit:
+
+- **[verifactu-hash-calculator](https://github.com/kreyo-io/verifactu-hash-calculator)** — compute the VeriFactu SHA-256 hash chain (huella) for AEAT records
+- **[facturae-examples](https://github.com/kreyo-io/facturae-examples)** — real, XSD-valid FacturaE 3.2.2 XML invoice examples with their JSON inputs
+
 ## Contributing
 
 Issues and PRs welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.

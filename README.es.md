@@ -158,6 +158,11 @@ Si construyes software que necesita compliance fiscal español, también te pued
 - **[Kreyo Extract](https://kreyo.io/extract)** — extrae datos estructurados de facturas recibidas con IA
 - **[Kreyo PDF](https://kreyo.io/pdf)** — genera facturas y documentos como PDF
 
+Y los repos open-source hermanos del toolkit de Kreyo:
+
+- **[verifactu-hash-calculator](https://github.com/kreyo-io/verifactu-hash-calculator)** — calcula la cadena de huella SHA-256 de VeriFactu para registros de la AEAT
+- **[facturae-examples](https://github.com/kreyo-io/facturae-examples)** — ejemplos reales de XML FacturaE 3.2.2 válidos contra el XSD, con su JSON de entrada
+
 ## Contribuir
 
 Issues y PRs son bienvenidos. Ver [CONTRIBUTING.md](CONTRIBUTING.md).
