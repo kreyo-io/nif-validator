@@ -21,7 +21,7 @@ Lo que aporta vs lo que ya hay:
 
 - Las tres variantes (DNI, NIE, CIF) con todas las reglas de control según tipo de letra de CIF (P/Q/R/S/N/W solo letra, A/B/E/H solo dígito, C/D/F/G/J/U/V ambos).
 - Tests sobre CIFs públicos reales de empresas grandes (Banco Santander, BBVA, Inditex, Telefónica, Repsol, Iberdrola) — para que sepas que no es solo el algoritmo cuadrando consigo mismo.
-- Manejo correcto de tipos deprecados K/L/M/T con flag `includeDeprecated` (off por defecto).
+- NIF K/L/M de persona física (vigentes, RD 1065/2007): se valida solo el formato oficial, sin inventar un checksum no publicado.
 - Normaliza espacios (incluyendo tabs y saltos de línea), guiones, mayúsculas/minúsculas.
 - Misma API en los tres lenguajes: isValid, normalize, getNifType.
 
@@ -54,7 +54,7 @@ Versión un poco más personal y con narrativa:
 ```
 He publicado el primer repo OSS de Kreyo: nif-validator.
 
-Validar un NIF español parece sencillo hasta que tu helper rechaza el CIF de tu cliente más grande. Y eso pasa porque la mayoría de snippets que circulan ignoran las reglas según tipo de letra del CIF (algunos tipos solo aceptan letra de control, otros solo dígito, otros ambos), o no normalizan bien el whitespace, o no manejan los tipos deprecados K/L/M/T que siguen vivos en bases de datos legacy.
+Validar un NIF español parece sencillo hasta que tu helper rechaza el CIF de tu cliente más grande. Y eso pasa porque la mayoría de snippets que circulan ignoran las reglas según tipo de letra del CIF (algunos tipos solo aceptan letra de control, otros solo dígito, otros ambos), o no normalizan bien el whitespace, o rechazan los NIF K/L/M de persona física (que siguen vigentes) en bases de datos legacy.
 
 He publicado una implementación de referencia en .NET, TypeScript y Python. Sin dependencias. Misma API en los tres lenguajes. Tests con CIFs reales de Banco Santander, BBVA, Inditex, Telefónica, Repsol e Iberdrola para verificar que el algoritmo funciona contra el mundo real, no solo contra fixtures que me he inventado yo.
 
@@ -90,7 +90,7 @@ github.com/kreyo-io/nif-validator
 Porque la mayoría de snippets:
 - Se saltan reglas del CIF según tipo de letra (P/Q/R/S/N/W solo letra, A/B/E/H solo dígito...)
 - No normalizan whitespace
-- Ignoran tipos deprecados K/L/M/T que siguen vivos en BBDD legacy
+- Rechazan los NIF K/L/M de persona física, que siguen vigentes
 ```
 
 ```

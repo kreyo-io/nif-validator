@@ -62,8 +62,9 @@ NifValidator.Normalize(" 12345678-z ");     // "12345678Z"
 NifValidator.GetNifType("X1234567L");       // "NIE"
 NifValidator.GetNifType("invalid");         // null
 
-// Optional: include deprecated types K, L, M, T (pre-2008)
-NifValidator.IsValid("K12345674", new NifValidatorOptions { IncludeDeprecated = true });
+// K, L, M: natural-person NIFs assigned by AEAT. Format-only check (see below)
+NifValidator.IsValid("K1234567L");          // true
+NifValidator.IsValid("K12345674");          // false (verification character must be a letter)
 ```
 
 ### TypeScript
@@ -80,7 +81,8 @@ normalize(" 12345678-z ");      // "12345678Z"
 getNifType("X1234567L");        // "NIE"
 getNifType("invalid");          // null
 
-isValid("K12345674", { includeDeprecated: true });  // true
+isValid("K1234567L");           // true (K/L/M: format-only check, see below)
+isValid("K12345674");           // false (verification character must be a letter)
 ```
 
 ### Python
@@ -97,7 +99,8 @@ normalize(" 12345678-z ")       # "12345678Z"
 get_nif_type("X1234567L")       # "NIE"
 get_nif_type("invalid")         # None
 
-is_valid("K12345674", ValidationOptions(include_deprecated=True))  # True
+is_valid("K1234567L")           # True (K/L/M: format-only check, see below)
+is_valid("K12345674")           # False (verification character must be a letter)
 ```
 
 ## What gets validated
@@ -129,7 +132,37 @@ CIF type letters and their control rules:
 | U | Unión Temporal de Empresas | digit or letter |
 | V | Otros tipos | digit or letter |
 | W | Establecimiento permanente extranjero | letter only |
-| K, L, M, T | Deprecated by AEAT (pre-2008) | only with `includeDeprecated` |
+
+### K, L, M: natural-person NIFs (format-only check)
+
+K, L and M are **current** NIFs for natural persons, assigned by AEAT (Real Decreto 1065/2007, arts. 19.2 and 20.2):
+
+| Letter | Who |
+|--------|-----|
+| K | Spaniards under 14 years old resident in Spain |
+| L | Spaniards resident abroad |
+| M | Foreigners without NIE |
+
+The official format is the initial letter + 7 alphanumeric characters + 1 alphabetic verification character. **The algorithm for that verification character is not published** in the BOE or by AEAT, so this library does not invent one: it checks the format only (`[KLM][0-9A-Z]{7}[A-Z]`). `K1234567L` is accepted; `K12345674` is rejected because the verification character must be a letter. This means a K/L/M NIF with a wrong verification letter is accepted. `getNifType` / `get_nif_type` / `GetNifType` return `"KLM"` for these.
+
+### Letter `T`
+
+`T` is not supported. We found no official source that defines `T` as an initial letter of a NIF, so it is rejected. This is "unsupported / not verifiable", not "deprecated".
+
+### The letter-vs-digit rule for CIF is a convention
+
+The table above (which CIF types take a digit, a letter, or either) is a **market convention**, not an official rule. The legislation only speaks of "a control character" (Orden EHA/451/2008) and does not say whether it is a letter or a digit; a 2008 AEAT communication, which we could only find as a third-party transcription, mentions digit controls for some new letters (J, U, V) and letter controls for others (R, W), but there is no complete official table. [python-stdnum](https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/es/cif.py) accepts both for every type, and its author notes that the available information is conflicting. This library keeps the stricter convention; if you must never reject a real company, treat a CIF rejected only because of letter-vs-digit as a warning.
+
+### Deprecated option `includeDeprecated`
+
+`includeDeprecated` / `IncludeDeprecated` / `include_deprecated` is **deprecated and has no effect since 0.2.0**. It is still accepted so existing code keeps compiling and running. Before 0.2.0 it enabled K, L, M, T with the CIF algorithm; that behavior was based on a wrong claim (see the [changelog](CHANGELOG.md)).
+
+### Sources
+
+- [Real Decreto 1065/2007 (BOE-A-2007-15984)](https://www.boe.es/buscar/act.php?id=BOE-A-2007-15984): arts. 19-22, NIF composition
+- [Orden EHA/451/2008 (BOE-A-2008-3580)](https://www.boe.es/buscar/act.php?id=BOE-A-2008-3580&tn=1): NIF of legal entities (does not mention K, L, M or T)
+- [AEAT, NIF composition: natural persons](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/guia-practica-cumplimentacion-modelo-censal-036/anexos/anexo-01-solicitud-nif-documentacion-aportar/informacion-sobre-numero-identificacion-fiscal/composicion-nif/personas-fisicas.html)
+- [AEAT, NIF composition: legal entities](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/guia-practica-cumplimentacion-modelo-censal-036/anexos/anexo-01-solicitud-nif-documentacion-aportar/informacion-sobre-numero-identificacion-fiscal/composicion-nif/personas-juridicas-entidades.html)
 
 ## What this library does NOT do
 

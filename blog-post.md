@@ -51,7 +51,7 @@ DNI_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE"
 
 def validate_dni(clean: str) -> bool:
     body = clean[:8]
-    if not body.isdigit():
+    if not all(c in "0123456789" for c in body):  # str.isdigit() accepts non-ASCII digits
         return False
     return clean[8] == DNI_LETTERS[int(body) % 23]
 ```
@@ -78,7 +78,7 @@ def validate_nie(clean: str) -> bool:
 
 ## CIF: aquí es donde la mayoría se equivoca
 
-El CIF es para empresas y entidades. La primera letra indica el tipo de organización, y la última puede ser un dígito o una letra dependiendo de qué letra sea la primera. Esto es lo que la gente suele saltarse.
+El CIF es para empresas y entidades. La primera letra indica el tipo de organización, y la última puede ser un dígito o una letra dependiendo de qué letra sea la primera. Esto es lo que la gente suele saltarse. Ojo: la normativa solo habla de "un carácter de control" y **no dice si es letra o dígito**; la regla por tipo que sigue es una convención de mercado, no una norma.
 
 ### Cálculo del dígito de control
 
@@ -90,19 +90,18 @@ Para los 7 dígitos centrales:
 4. **Dígito de control** = `(10 - total mod 10) mod 10` → un dígito de 0 a 9.
 5. **Letra de control** = `"JABCDEFGHI"[dígitoControl]` (J=0, A=1, ..., I=9).
 
-### Las reglas según tipo de letra
+### Las reglas según tipo de letra (convención, no norma)
 
-Esto es lo crítico:
+La Orden EHA/451/2008 no define si el carácter de control es letra o dígito. Esta tabla es la convención más extendida y la que aplica la librería, pero no hay una tabla oficial completa; [python-stdnum](https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/es/cif.py) acepta ambos para todos los tipos y su autor reconoce que la información es contradictoria:
 
 | Letra inicial | Significado | Control |
 |--------------|-------------|---------|
 | **N, P, Q, R, S, W** | Organismos, religiosas, no residentes | **Solo letra** |
 | **A, B, E, H** | SA, SL, comunidades de bienes y propietarios | **Solo dígito** |
 | **C, D, F, G, J, U, V** | Cooperativas, asociaciones, etc. | Letra **o** dígito |
-| **K, L, M, T** | Tipos deprecados (pre-2008) | Solo si el cliente lo permite |
 | **Otras** | Inválido | — |
 
-Si tu validador trata `P1234567A` como válido (porque la letra "A" cuadra con el cálculo del control letter), te has equivocado: el tipo P solo acepta letra, pero la letra correcta para el body `1234567` es `D`, no `A`.
+Por ejemplo, con esta convención `P1234567A` se rechaza: el tipo P solo acepta letra, pero la letra que sale del cálculo para el body `1234567` es `D`, no `A`.
 
 ```python
 CIF_CONTROL_LETTERS = "JABCDEFGHI"
@@ -110,7 +109,7 @@ CIF_CONTROL_LETTERS = "JABCDEFGHI"
 def validate_cif(clean: str) -> bool:
     first = clean[0]
     body = clean[1:8]
-    if not body.isdigit():
+    if not all(c in "0123456789" for c in body):
         return False
 
     sum_odd = 0
@@ -128,27 +127,27 @@ def validate_cif(clean: str) -> bool:
     check_letter = CIF_CONTROL_LETTERS[check_digit]
     control = clean[8]
 
-    if first in "PQRSNW":  # solo letra
+    if first in "PQRSNW":  # solo letra (convención)
         return control == check_letter
-    if first in "ABEH":  # solo dígito
+    if first in "ABEH":  # solo dígito (convención)
         return control == str(check_digit)
     return control == check_letter or control == str(check_digit)
 ```
 
-## El edge case de los tipos K, L, M, T
+## K, L y M: NIF de persona física
 
-Estos tipos están deprecados desde la Orden EHA/451/2008. AEAT ya no los emite, pero **siguen circulando en bases de datos antiguas**, especialmente en software contable que migra históricos.
+Las letras K, L y M **no son tipos de CIF**: son NIF vigentes de persona física que asigna la AEAT a quien no tiene DNI ni NIE (Real Decreto 1065/2007, arts. 19.2 y 20.2): K para españoles menores de 14 años residentes en España, L para españoles residentes en el extranjero y M para extranjeros sin NIE.
 
-¿Los aceptas o los rechazas?
-
-Nuestra postura: **rechazar por defecto, aceptar con flag explícito**.
+El formato oficial es letra inicial + 7 caracteres alfanuméricos + 1 carácter de verificación alfabético. **El algoritmo del carácter de verificación no está publicado** en el BOE ni por la AEAT, así que no lo inventamos: la librería comprueba solo el formato.
 
 ```ts
-isValid("K12345674");                              // false
-isValid("K12345674", { includeDeprecated: true }); // true
+isValid("K1234567L");  // true
+isValid("K12345674");  // false: el carácter de verificación debe ser una letra
 ```
 
-Esto le da al consumidor el control. Si tu app es una integración nueva con producción moderna, déjalo en false. Si estás migrando datos legacy de una gestoría con 30 años de historial, ponlo a true.
+La contrapartida es que un NIF K/L/M con la letra de verificación mal tecleada se acepta. Preferimos eso a rechazar NIF reales con un algoritmo sin respaldo oficial.
+
+(Versiones anteriores a la 0.2.0 afirmaban que K, L, M y T estaban "deprecados por la Orden EHA/451/2008" y los validaban solo con `includeDeprecated`. Era falso: esa Orden no menciona K, L, M ni T. La opción `includeDeprecated` sigue aceptándose pero ya no tiene efecto. La letra `T` no tiene respaldo oficial como letra inicial y se rechaza.)
 
 ## Lo que NO valida (y que mucha gente confunde)
 
