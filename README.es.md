@@ -56,8 +56,9 @@ NifValidator.Normalize(" 12345678-z ");     // "12345678Z"
 NifValidator.GetNifType("X1234567L");       // "NIE"
 NifValidator.GetNifType("invalido");        // null
 
-// Opcional: incluir tipos deprecados K, L, M, T (pre-2008)
-NifValidator.IsValid("K12345674", new NifValidatorOptions { IncludeDeprecated = true });
+// K, L, M: NIF de persona física asignados por la AEAT. Solo se comprueba el formato (ver abajo)
+NifValidator.IsValid("K1234567L");          // true
+NifValidator.IsValid("K12345674");          // false (el carácter de verificación debe ser una letra)
 ```
 
 ### TypeScript
@@ -74,7 +75,8 @@ normalize(" 12345678-z ");      // "12345678Z"
 getNifType("X1234567L");        // "NIE"
 getNifType("invalido");         // null
 
-isValid("K12345674", { includeDeprecated: true });  // true
+isValid("K1234567L");           // true (K/L/M: solo formato, ver abajo)
+isValid("K12345674");           // false (el carácter de verificación debe ser una letra)
 ```
 
 ### Python
@@ -91,7 +93,8 @@ normalize(" 12345678-z ")       # "12345678Z"
 get_nif_type("X1234567L")       # "NIE"
 get_nif_type("invalido")        # None
 
-is_valid("K12345674", ValidationOptions(include_deprecated=True))  # True
+is_valid("K1234567L")           # True (K/L/M: solo formato, ver abajo)
+is_valid("K12345674")           # False (el carácter de verificación debe ser una letra)
 ```
 
 ## Qué se valida
@@ -123,7 +126,37 @@ Letras de tipo CIF y sus reglas de control:
 | U | Unión Temporal de Empresas | dígito o letra |
 | V | Otros tipos | dígito o letra |
 | W | Establecimiento permanente extranjero | solo letra |
-| K, L, M, T | Deprecados por AEAT (pre-2008) | solo con `includeDeprecated` |
+
+### K, L, M: NIF de persona física (solo se comprueba el formato)
+
+K, L y M son NIF **vigentes** de persona física, asignados por la AEAT (Real Decreto 1065/2007, arts. 19.2 y 20.2):
+
+| Letra | Quién |
+|-------|-------|
+| K | Españoles menores de 14 años residentes en España |
+| L | Españoles residentes en el extranjero |
+| M | Extranjeros sin NIE |
+
+El formato oficial es letra inicial + 7 caracteres alfanuméricos + 1 carácter de verificación alfabético. **El algoritmo de ese carácter de verificación no está publicado** en el BOE ni por la AEAT, así que esta librería no se inventa uno: comprueba solo el formato (`[KLM][0-9A-Z]{7}[A-Z]`). `K1234567L` se acepta; `K12345674` se rechaza porque el carácter de verificación debe ser una letra. Consecuencia: un NIF K/L/M con la letra de verificación incorrecta se acepta. `getNifType` / `get_nif_type` / `GetNifType` devuelven `"KLM"` para estos NIF.
+
+### La letra `T`
+
+`T` no está soportada. No hemos encontrado ninguna fuente oficial que defina `T` como letra inicial de un NIF, así que se rechaza. Es "no soportada / no verificable", no "deprecada".
+
+### La regla letra-vs-dígito del CIF es una convención
+
+La tabla anterior (qué tipos de CIF llevan dígito, letra o cualquiera) es una **convención de mercado**, no una regla oficial. La normativa solo habla de "un carácter de control" (Orden EHA/451/2008) y no dice si es letra o dígito; una comunicación de la AEAT de 2008, que solo hemos podido localizar como transcripción de terceros, menciona control numérico para algunas letras nuevas (J, U, V) y alfabético para otras (R, W), pero no hay una tabla oficial completa. [python-stdnum](https://github.com/arthurdejong/python-stdnum/blob/master/stdnum/es/cif.py) acepta ambos para todos los tipos, y su autor reconoce que la información disponible es contradictoria. Esta librería mantiene la convención más estricta; si no puedes permitirte rechazar una empresa real, trata un CIF rechazado solo por letra-vs-dígito como un aviso.
+
+### Opción obsoleta `includeDeprecated`
+
+`includeDeprecated` / `IncludeDeprecated` / `include_deprecated` está **obsoleta y no tiene efecto desde la 0.2.0**. Se sigue aceptando para que el código existente compile y funcione. Antes de la 0.2.0 activaba K, L, M, T con el algoritmo del CIF; ese comportamiento se basaba en una afirmación errónea (ver el [changelog](CHANGELOG.md)).
+
+### Fuentes
+
+- [Real Decreto 1065/2007 (BOE-A-2007-15984)](https://www.boe.es/buscar/act.php?id=BOE-A-2007-15984): arts. 19-22, composición del NIF
+- [Orden EHA/451/2008 (BOE-A-2008-3580)](https://www.boe.es/buscar/act.php?id=BOE-A-2008-3580&tn=1): NIF de personas jurídicas (no menciona K, L, M ni T)
+- [AEAT, composición del NIF: personas físicas](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/guia-practica-cumplimentacion-modelo-censal-036/anexos/anexo-01-solicitud-nif-documentacion-aportar/informacion-sobre-numero-identificacion-fiscal/composicion-nif/personas-fisicas.html)
+- [AEAT, composición del NIF: personas jurídicas y entidades](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/guia-practica-cumplimentacion-modelo-censal-036/anexos/anexo-01-solicitud-nif-documentacion-aportar/informacion-sobre-numero-identificacion-fiscal/composicion-nif/personas-juridicas-entidades.html)
 
 ## Lo que esta librería NO hace
 
