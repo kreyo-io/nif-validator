@@ -110,20 +110,35 @@ describe("isValid - real public Spanish company CIFs", () => {
   });
 });
 
-describe("isValid - deprecated K, L, M, T", () => {
-  it.each(["K12345674", "L12345674", "M12345674", "T12345674"])(
-    "rejects %s by default",
-    (nif) => {
-      expect(isValid(nif)).toBe(false);
-    }
-  );
+describe("isValid - K, L, M natural-person NIFs (format only)", () => {
+  it.each([
+    "K1234567L",
+    "L1234567D",
+    "M1234567L",
+    "K-1234567-L",
+    "k1234567l",
+    "KA23B5C7Z",
+  ])("accepts %s", (nif) => {
+    expect(isValid(nif)).toBe(true);
+  });
 
-  it.each(["K12345674", "L12345674", "M12345674", "T12345674"])(
-    "accepts %s with includeDeprecated",
-    (nif) => {
-      expect(isValid(nif, { includeDeprecated: true })).toBe(true);
-    }
-  );
+  it.each([
+    "K12345674", // numeric verification character: must be alphabetic
+    "K123456L",
+    "K1234567",
+    "K12345678Z",
+    "T1234567L", // T has no official basis: unsupported
+    "K1234567\u00c9",
+    "K\u0661234567L",
+  ])("rejects %s", (nif) => {
+    expect(isValid(nif)).toBe(false);
+  });
+
+  it("ignores the deprecated includeDeprecated option", () => {
+    expect(isValid("K1234567L", { includeDeprecated: true })).toBe(true);
+    expect(isValid("K12345674", { includeDeprecated: true })).toBe(false);
+    expect(isValid("T1234567L", { includeDeprecated: true })).toBe(false);
+  });
 });
 
 describe("isValid - edge cases", () => {
@@ -155,6 +170,8 @@ describe("getNifType", () => {
     ["12345678Z", "DNI"],
     ["X1234567L", "NIE"],
     ["A12345674", "CIF"],
+    ["K1234567L", "KLM"],
+    ["T1234567L", null],
     ["invalid", null],
     [null, null],
   ])("returns %s -> %s", (input, expected) => {
