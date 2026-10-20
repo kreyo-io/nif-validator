@@ -118,25 +118,46 @@ public class NifValidatorTests
     public void IsValid_Cif_RealPublicCompanies(string nif) =>
         Assert.True(NifValidator.IsValid(nif));
 
-    // ===== Deprecated types K, L, M, T =====
+    // ===== K, L, M (natural-person NIFs, RD 1065/2007 arts. 19.2 and 20.2): format only =====
 
     [Theory]
-    [InlineData("K12345674")]
-    [InlineData("L12345674")]
-    [InlineData("M12345674")]
-    [InlineData("T12345674")]
-    public void IsValid_Cif_Deprecated_DefaultRejects(string nif) =>
+    [InlineData("K1234567L")]   // K: Spaniard under 14 resident in Spain
+    [InlineData("L1234567D")]   // L: Spaniard resident abroad
+    [InlineData("M1234567L")]   // M: foreigner without NIE
+    [InlineData("K-1234567-L")] // separators
+    [InlineData("k1234567l")]   // lower case
+    [InlineData("KA23B5C7Z")]   // alphanumeric body
+    public void IsValid_Klm_FormatValid(string nif) =>
+        Assert.True(NifValidator.IsValid(nif));
+
+    [Theory]
+    [InlineData("K12345674")]   // numeric verification character: must be alphabetic
+    [InlineData("K123456L")]    // too short
+    [InlineData("K1234567")]    // no verification character
+    [InlineData("K12345678Z")]  // too long
+    [InlineData("T1234567L")]   // T has no official basis: unsupported
+    [InlineData("K1234567É")] // non-ASCII letter as control character
+    [InlineData("K١234567L")] // non-ASCII (Arabic-Indic) digit in the body
+    public void IsValid_Klm_FormatInvalid(string nif) =>
         Assert.False(NifValidator.IsValid(nif));
 
+    [Fact]
+    public void IsValid_IncludeDeprecatedOption_HasNoEffect()
+    {
+#pragma warning disable CS0618
+        var on = new NifValidatorOptions { IncludeDeprecated = true };
+#pragma warning restore CS0618
+        Assert.True(NifValidator.IsValid("K1234567L", on));
+        Assert.False(NifValidator.IsValid("K12345674", on));
+        Assert.False(NifValidator.IsValid("T1234567L", on));
+    }
+
     [Theory]
-    [InlineData("K12345674")]
-    [InlineData("L12345674")]
-    [InlineData("M12345674")]
-    [InlineData("T12345674")]
-    public void IsValid_Cif_Deprecated_OptInAccepts(string nif) =>
-        Assert.True(NifValidator.IsValid(
-            nif,
-            new NifValidatorOptions { IncludeDeprecated = true }));
+    [InlineData("A+1234567")]   // int.TryParse would have accepted the sign
+    [InlineData("A-1234567")]   // hyphen is a separator: too short after cleaning
+    [InlineData("B+1234567")]
+    public void IsValid_Cif_SignedBody_Rejected(string nif) =>
+        Assert.False(NifValidator.IsValid(nif));
 
     // ===== Edge cases =====
 
@@ -173,6 +194,8 @@ public class NifValidatorTests
     [InlineData("12345678Z", "DNI")]
     [InlineData("X1234567L", "NIE")]
     [InlineData("A12345674", "CIF")]
+    [InlineData("K1234567L", "KLM")]
+    [InlineData("T1234567L", null)]
     [InlineData("invalid", null)]
     [InlineData(null, null)]
     public void GetNifType_ReturnsCorrectType(string? input, string? expected) =>

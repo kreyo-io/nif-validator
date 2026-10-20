@@ -8,7 +8,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <PackageId>Kreyo.NifValidator</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Kreyo</Authors>
     <Company>Kreyo</Company>
     <Description>Reference implementation for validating Spanish tax IDs (DNI, NIE, CIF). Pure functions, no dependencies, multi-target net8.0 + netstandard2.0.</Description>

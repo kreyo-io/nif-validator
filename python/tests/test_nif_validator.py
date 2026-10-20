@@ -119,17 +119,43 @@ def test_is_valid_cif_real_companies(nif: str, company: str) -> None:
     assert is_valid(nif) is True, f"{company} CIF {nif} should be valid"
 
 
-# ===== Deprecated K, L, M, T =====
+# ===== K, L, M natural-person NIFs (format only) =====
 
 
-@pytest.mark.parametrize("nif", ["K12345674", "L12345674", "M12345674", "T12345674"])
-def test_deprecated_default_rejects(nif: str) -> None:
+@pytest.mark.parametrize(
+    "nif",
+    ["K1234567L", "L1234567D", "M1234567L", "K-1234567-L", "k1234567l", "KA23B5C7Z"],
+)
+def test_klm_format_valid(nif: str) -> None:
+    assert is_valid(nif) is True
+
+
+@pytest.mark.parametrize(
+    "nif",
+    [
+        "K12345674",  # numeric verification character: must be alphabetic
+        "K123456L",
+        "K1234567",
+        "K12345678Z",
+        "T1234567L",  # T has no official basis: unsupported
+        "K1234567\u00c9",
+        "K\u0661234567L",
+    ],
+)
+def test_klm_format_invalid(nif: str) -> None:
     assert is_valid(nif) is False
 
 
-@pytest.mark.parametrize("nif", ["K12345674", "L12345674", "M12345674", "T12345674"])
-def test_deprecated_opt_in_accepts(nif: str) -> None:
-    assert is_valid(nif, ValidationOptions(include_deprecated=True)) is True
+def test_include_deprecated_has_no_effect() -> None:
+    opts = ValidationOptions(include_deprecated=True)
+    assert is_valid("K1234567L", opts) is True
+    assert is_valid("K12345674", opts) is False
+    assert is_valid("T1234567L", opts) is False
+
+
+@pytest.mark.parametrize("nif", ["\u0661234567L", "A\u0661234567", "A+1234567"])
+def test_non_ascii_and_signed_digits_rejected(nif: str) -> None:
+    assert is_valid(nif) is False
 
 
 # ===== Edge cases =====
@@ -171,6 +197,8 @@ def test_normalize_invalid_raises(input_: str | None) -> None:
         ("12345678Z", "DNI"),
         ("X1234567L", "NIE"),
         ("A12345674", "CIF"),
+        ("K1234567L", "KLM"),
+        ("T1234567L", None),
         ("invalid", None),
         (None, None),
     ],
